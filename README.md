@@ -1,22 +1,9 @@
-## Interpreter for Monty ByteCode files
-> This is an interpreter for
-> these special opcodes: `push`, `pall`, `pint`, `pop`, `swap`, `swap`, `add`, `nop`
+# monty interpreter
 
-### How to Compile
-Usage: ./monty [filename]
-```
-$ git clone https://github.com/MelissaN/monty
-$ cd monty
-$ gcc -Wall -Werror -Wextra -pedantic *.c -o monty
-$ ./monty bytecodes/000.m
-```
-
-### Built using
-- C
-- OS: Ubuntu 14.04 LTS
-- compiler: gcc 4.8.4
-- Style guidelines: Betty
-
-### Author
-- Amanuel Sisay     [![M](https://upload.wikimedia.org/wikipedia/fr/thumb/c/c8/Twitter_Bird.svg/30px-Twitter_Bird.svg.png)](https://twitter.com/amanabiy_as)
-- Amanuel Awol
+## General
+What do LIFO and FIFO mean
+What is a stack, and when to use it
+What is a queue, and when to use it
+What are the common implementations of stacks and queues
+What are the most common use cases of stacks and queues
+What is the proper way to use global variables

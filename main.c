@@ -1,47 +1,74 @@
 #include "monty.h"
 
-vars var;
-
 /**
- * main - Start LIFO, FILO program
- * @ac: Number of arguments
- * @av: Pointer containing arguments
- * Return: 0 Success, 1 Failed
+ * main - entry into interpreter
+ * @argc: argc counter
+ * @argv: arguments
+ * Return: 0 on success
  */
-int main(int ac, char **av)
+int main(int argc, char *argv[])
 {
-	char *opcode;
+	int fd, ispush = 0;
+	unsigned int line = 1;
+	ssize_t n_read;
+	char *buffer, *token;
+	stack_t *h = NULL;
 
-	if (ac != 2)
+	if (argc != 2)
 	{
-		fprintf(stderr, "USAGE: monty file\n");
-		return (EXIT_FAILURE);
+		printf("USAGE: monty file\n");
+		exit(EXIT_FAILURE);
 	}
-
-	if (start_vars(&var) != 0)
-		return (EXIT_FAILURE);
-
-	var.file = fopen(av[1], "r");
-	if (!var.file)
+	fd = open(argv[1], O_RDONLY);
+	if (fd == -1)
 	{
-		fprintf(stderr, "Error: Can't open file %s\n", av[1]);
-		free_all();
-		return (EXIT_FAILURE);
+		printf("Error: Can't open file %s\n", argv[1]);
+		exit(EXIT_FAILURE);
 	}
-
-	while (getline(&var.buff, &var.tmp, var.file) != EOF)
+	buffer = malloc(sizeof(char) * 10000);
+	if (!buffer)
+		return (0);
+	n_read = read(fd, buffer, 10000);
+	if (n_read == -1)
 	{
-		opcode = strtok(var.buff, " \r\t\n");
-		if (opcode != NULL)
-			if (call_funct(&var, opcode) == EXIT_FAILURE)
+		free(buffer);
+		close(fd);
+		exit(EXIT_FAILURE);
+	}
+	token = strtok(buffer, "\n\t\a\r ;:");
+	while (token != NULL)
+	{
+		if (ispush == 1)
+		{
+			push(&h, line, token);
+			ispush = 0;
+			token = strtok(NULL, "\n\t\a\r ;:");
+			line++;
+			continue;
+		}
+		else if (strcmp(token, "push") == 0)
+		{
+			ispush = 1;
+			token = strtok(NULL, "\n\t\a\r ;:");
+			continue;
+		}
+		else
+		{
+			if (get_op_func(token) != 0)
 			{
-				free_all();
-				return (EXIT_FAILURE);
+				get_op_func(token)(&h, line);
 			}
-		var.line_number++;
+			else
+			{
+				free_dlist(&h);
+				printf("L%d: unknown instruction %s\n", line, token);
+				exit(EXIT_FAILURE);
+			}
+		}
+		line++;
+		token = strtok(NULL, "\n\t\a\r ;:");
 	}
-
-	free_all();
-
-	return (EXIT_SUCCESS);
+	free_dlist(&h); free(buffer);
+	close(fd);
+	return (0);
 }
